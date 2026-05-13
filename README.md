@@ -77,11 +77,15 @@ opencv-python
 请将训练好的 YOLO 权重文件放在项目**根目录**下，并命名为：
 best.pt
 项目根目录结构示例：
+
+```text
 yolo_demo/
 ├── app.py
 ├── best.pt
 ├── templates/
 └── static/
+```
+
 ### 3. 启动 Flask 服务
 
 ```python app.py```
