@@ -69,7 +69,7 @@ opencv-python
 
 ### 1. 克隆项目
 ```git clone https://github.com/tobbyyan-barker/nighttime-street-light-detection-demo.git```
-cd nighttime-street-light-detection-demo
+```cd nighttime-street-light-detection-demo```
 ### 2. 准备模型权重
 
 > ⚠️ 由于模型权重文件通常较大，`best.pt` 默认不上传到 GitHub。 后续会通过百度网盘上传
