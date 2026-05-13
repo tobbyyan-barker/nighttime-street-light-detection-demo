@@ -25,7 +25,7 @@
 
 - 前端：HTML5 / CSS / JavaScript
 - 后端：Flask API
-- 模型：YOLO
+- 模型：YOLO11s
 - 图像处理：OpenCV
 - 数据交互：FormData / JSON
 
