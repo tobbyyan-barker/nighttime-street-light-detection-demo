@@ -1,0 +1,147 @@
+* {
+    box-sizing: border-box;
+  }
+  
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f4f7fb;
+    color: #1f2937;
+  }
+  
+  .app {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 24px;
+  }
+  
+  header {
+    margin-bottom: 24px;
+  }
+  
+  header h1 {
+    margin-bottom: 8px;
+    font-size: 32px;
+  }
+  
+  header p {
+    color: #6b7280;
+  }
+  
+  .layout {
+    display: grid;
+    grid-template-columns: 260px 1fr 280px;
+    gap: 20px;
+  }
+  
+  .panel {
+    background: white;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+  }
+  
+  .panel h2 {
+    margin-top: 0;
+    font-size: 20px;
+  }
+  
+  .upload-box {
+    display: block;
+    padding: 18px;
+    border: 2px dashed #60a5fa;
+    border-radius: 12px;
+    text-align: center;
+    cursor: pointer;
+    margin-bottom: 20px;
+    color: #2563eb;
+    background: #eff6ff;
+  }
+  
+  .upload-box input {
+    display: none;
+  }
+  
+  .form-group {
+    margin-bottom: 20px;
+  }
+  
+  .form-group label {
+    display: block;
+    margin-bottom: 8px;
+  }
+  
+  .form-group input {
+    width: 100%;
+  }
+  
+  button {
+    width: 100%;
+    border: none;
+    border-radius: 12px;
+    padding: 12px;
+    background: #2563eb;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  
+  button:hover {
+    background: #1d4ed8;
+  }
+  
+  .status {
+    margin-top: 16px;
+    color: #6b7280;
+    font-size: 14px;
+  }
+  
+  .image-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+  }
+  
+  .image-box {
+    min-height: 320px;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    background: #f9fafb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  
+  .image-box img {
+    max-width: 100%;
+    max-height: 420px;
+    display: none;
+  }
+  
+  .stat-card {
+    background: #eff6ff;
+    padding: 16px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+  }
+  
+  .stat-card span {
+    display: block;
+    color: #6b7280;
+    margin-bottom: 8px;
+  }
+  
+  .stat-card strong {
+    font-size: 32px;
+    color: #2563eb;
+  }
+  
+  #resultList {
+    padding-left: 18px;
+  }
+  
+  #resultList li {
+    margin-bottom: 8px;
+    font-size: 14px;
+  }

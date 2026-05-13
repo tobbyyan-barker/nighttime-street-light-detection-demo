@@ -1,0 +1,86 @@
+<!-- 这是一个HTML5页面 并且页面语言是英文-->
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- head: 网页基础配置和引入CSS 网页使用UTF-8编码 中文，英文，符号等正常显示-->
+<!-- head的第二行是响应式网页常用的配置，title 是浏览器标签页上显示的标题, 最后一行负责引入css文件 -->
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nighttime Street Light Detection Demo</title>
+  <link rel="stylesheet" href="/static/style.css" /> 
+</head>
+
+<!-- body: 页面真正显示的内容 整个应用页面-->
+<!--app = 整个 YOLO Demo 页面-->
+<!--header模块: 页面标题区 负责页面顶部介绍-->
+<!-- main模块 页面主体布局-->
+<!--main模块有三个区域: control panel 和 Image Preview 和 Detection Info-->
+<!-- 上传图片区域代码: <input type="file" id="imageInput" accept="image/*" /> 这个的id很关键 后面的script.js会用这个监听图片是否上传-->
+<!-- 滑动条: <input type="range" id="confInput" min="0.1" max="0.9" step="0.05" value="0.5" />, id也很重要 js用当前id获取置信度-->
+<!--<div class="image-grid"> image-grid里面放两个图片区域-->
+<body>
+  <div class="app">
+    <header>
+      <h1>Nighttime Street Light Detection Demo</h1>
+      <p>Upload a nighttime road image and detect street lights using a YOLO model.</p>
+    </header>
+
+    <main class="layout">
+      <section class="panel control-panel">
+        <h2>Control Panel</h2>
+
+        <label class="upload-box">
+          <input type="file" id="imageInput" accept="image/*" />
+          <span>Choose Image</span>
+        </label>
+
+        <div class="form-group">
+          <label for="confInput">Confidence Threshold</label>
+          <input type="range" id="confInput" min="0.1" max="0.9" step="0.05" value="0.5" />
+          <span id="confValue">0.50</span>
+        </div>
+
+        <button id="detectBtn">Start Detection</button>
+
+        <p id="statusText" class="status">Waiting for image upload...</p>
+      </section>
+
+      <section class="panel image-panel">
+        <h2>Image Preview</h2>
+
+        <div class="image-grid">
+          <div>
+            <h3>Original Image</h3>
+            <div class="image-box">
+              <img id="originalPreview" alt="Original preview" />
+            </div>
+          </div>
+
+          <div>
+            <h3>Detection Result</h3>
+            <div class="image-box">
+              <img id="resultPreview" alt="Detection result" />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel result-panel">
+        <h2>Detection Info</h2>
+
+        <div class="stat-card">
+          <span>Detected Objects</span>
+          <strong id="countText">0</strong>
+        </div>
+
+        <h3>Result List</h3>
+        <ul id="resultList"></ul>
+      </section>
+    </main>
+  </div>
+
+<!-- script: 引入js 让页面能交互-->  
+  <script src="/static/script.js"></script>
+</body>
+</html>

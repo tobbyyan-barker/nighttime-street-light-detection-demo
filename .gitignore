@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+venv/
+env/
+*.log
+
+# Environment
+.env
+.env.*
+*.env
+
+# Model weights
+*.pt
+*.pth
+*.onnx
+*.engine
+
+# Uploaded and generated images
+static/uploads/*
+static/results/*
+
+# Keep folders
+!static/uploads/.gitkeep
+!static/results/.gitkeep
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Frontend / deployment
+node_modules/
+.next/
+.vercel/
+dist/
+build/
