@@ -13,6 +13,10 @@
 
 ---
 
+## Demo
+### Video Detection Demo
+![Video Detection Demo](assets/yolo-demo-video-preview.gif)
+
 ## 项目功能
 
 ### 图片检测功能
