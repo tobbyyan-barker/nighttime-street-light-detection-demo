@@ -4,11 +4,12 @@
 
 <!-- head: 网页基础配置和引入CSS 网页使用UTF-8编码 中文，英文，符号等正常显示-->
 <!-- head的第二行是响应式网页常用的配置，title 是浏览器标签页上显示的标题, 最后一行负责引入css文件 -->
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Nighttime Street Light Detection Demo</title>
-  <link rel="stylesheet" href="/static/style.css" /> 
+  <link rel="stylesheet" href="/static/style.css" />
 </head>
 
 <!-- body: 页面真正显示的内容 整个应用页面-->
@@ -19,35 +20,52 @@
 <!-- 上传图片区域代码: <input type="file" id="imageInput" accept="image/*" /> 这个的id很关键 后面的script.js会用这个监听图片是否上传-->
 <!-- 滑动条: <input type="range" id="confInput" min="0.1" max="0.9" step="0.05" value="0.5" />, id也很重要 js用当前id获取置信度-->
 <!--<div class="image-grid"> image-grid里面放两个图片区域-->
+
 <body>
   <div class="app">
     <header>
       <h1>Nighttime Street Light Detection Demo</h1>
-      <p>Upload a nighttime road image and detect street lights using a YOLO model.</p>
+      <p>
+        Upload a nighttime road image or video and detect street lights using a YOLO model.
+      </p>
     </header>
 
     <main class="layout">
+      <!-- 控制面板 -->
       <section class="panel control-panel">
         <h2>Control Panel</h2>
 
+        <!-- 图片上传 -->
         <label class="upload-box">
           <input type="file" id="imageInput" accept="image/*" />
           <span>Choose Image</span>
         </label>
 
+        <!-- 视频上传 -->
+        <label class="upload-box">
+          <input type="file" id="videoInput" accept="video/*" />
+          <span>Choose Video</span>
+        </label>
+
+        <!-- 置信度滑动条 -->
         <div class="form-group">
           <label for="confInput">Confidence Threshold</label>
           <input type="range" id="confInput" min="0.1" max="0.9" step="0.05" value="0.5" />
           <span id="confValue">0.50</span>
         </div>
 
-        <button id="detectBtn">Start Detection</button>
+        <!-- 图片检测按钮 -->
+        <button id="detectBtn">Start Image Detection</button>
 
-        <p id="statusText" class="status">Waiting for image upload...</p>
+        <!-- 视频检测按钮 -->
+        <button id="detectVideoBtn">Start Video Detection</button>
+
+        <p id="statusText" class="status">Waiting for image or video upload...</p>
       </section>
 
+      <!-- 图片检测区域 -->
       <section class="panel image-panel">
-        <h2>Image Preview</h2>
+        <h2>Image Detection Preview</h2>
 
         <div class="image-grid">
           <div>
@@ -66,6 +84,7 @@
         </div>
       </section>
 
+      <!-- 检测信息 -->
       <section class="panel result-panel">
         <h2>Detection Info</h2>
 
@@ -77,10 +96,29 @@
         <h3>Result List</h3>
         <ul id="resultList"></ul>
       </section>
+
+      <!-- 视频检测结果区域 -->
+      <section class="panel video-panel">
+        <h2>Video Detection Results</h2>
+
+        <div class="video-summary">
+          <div class="stat-card">
+            <span>Extracted Frames</span>
+            <strong id="frameCountText">0</strong>
+          </div>
+
+          <div class="stat-card">
+            <span>Total Detected Objects</span>
+            <strong id="videoCountText">0</strong>
+          </div>
+        </div>
+
+        <div id="videoGallery" class="video-gallery"></div>
+      </section>
     </main>
   </div>
 
-<!-- script: 引入js 让页面能交互-->  
   <script src="/static/script.js"></script>
 </body>
+
 </html>

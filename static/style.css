@@ -1,147 +1,219 @@
 * {
-    box-sizing: border-box;
-  }
-  
-  body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background: #f4f7fb;
-    color: #1f2937;
-  }
-  
-  .app {
-    max-width: 1280px;
-    margin: 0 auto;
-    padding: 24px;
-  }
-  
-  header {
-    margin-bottom: 24px;
-  }
-  
-  header h1 {
-    margin-bottom: 8px;
-    font-size: 32px;
-  }
-  
-  header p {
-    color: #6b7280;
-  }
-  
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f4f7fb;
+  color: #1f2937;
+}
+
+.app {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+header {
+  margin-bottom: 24px;
+}
+
+header h1 {
+  margin-bottom: 8px;
+  font-size: 32px;
+}
+
+header p {
+  color: #6b7280;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 260px 1fr 280px;
+  gap: 20px;
+}
+
+.panel {
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+}
+
+.panel h2 {
+  margin-top: 0;
+  font-size: 20px;
+}
+
+.upload-box {
+  display: block;
+  padding: 18px;
+  border: 2px dashed #60a5fa;
+  border-radius: 12px;
+  text-align: center;
+  cursor: pointer;
+  margin-bottom: 20px;
+  color: #2563eb;
+  background: #eff6ff;
+}
+
+.upload-box input {
+  display: none;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+}
+
+.form-group input {
+  width: 100%;
+}
+
+button {
+  width: 100%;
+  border: none;
+  border-radius: 12px;
+  padding: 12px;
+  background: #2563eb;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #1d4ed8;
+}
+
+.status {
+  margin-top: 16px;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.image-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+.image-box {
+  min-height: 320px;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  background: #f9fafb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.image-box img {
+  max-width: 100%;
+  max-height: 420px;
+  display: none;
+}
+
+.stat-card {
+  background: #eff6ff;
+  padding: 16px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+}
+
+.stat-card span {
+  display: block;
+  color: #6b7280;
+  margin-bottom: 8px;
+}
+
+.stat-card strong {
+  font-size: 32px;
+  color: #2563eb;
+}
+
+#resultList {
+  padding-left: 18px;
+}
+
+#resultList li {
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+/* 视频结果区域：让它横跨主区域，放在下一行 */
+.video-panel {
+  grid-column: 1 / -1;
+}
+
+/* 视频统计信息：抽帧数量 + 总检测框数量 */
+.video-summary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+/* 视频检测结果图片网格 */
+.video-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+/* 每一帧检测结果卡片 */
+.video-frame-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: #f9fafb;
+  padding: 12px;
+}
+
+/* 每一帧图片 */
+.video-frame-card img {
+  width: 100%;
+  border-radius: 10px;
+  display: block;
+  margin-bottom: 10px;
+}
+
+/* 每一帧下面的文字信息 */
+.video-frame-card p {
+  margin: 4px 0;
+  font-size: 14px;
+  color: #374151;
+}
+
+/* 第二个按钮和第一个按钮之间留点距离 */
+#detectVideoBtn {
+  margin-top: 10px;
+  background: #0f766e;
+}
+
+#detectVideoBtn:hover {
+  background: #115e59;
+}
+
+/* 小屏幕适配 */
+@media (max-width: 960px) {
   .layout {
-    display: grid;
-    grid-template-columns: 260px 1fr 280px;
-    gap: 20px;
+    grid-template-columns: 1fr;
   }
-  
-  .panel {
-    background: white;
-    border-radius: 16px;
-    padding: 20px;
-    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+
+  .video-panel {
+    grid-column: auto;
   }
-  
-  .panel h2 {
-    margin-top: 0;
-    font-size: 20px;
-  }
-  
-  .upload-box {
-    display: block;
-    padding: 18px;
-    border: 2px dashed #60a5fa;
-    border-radius: 12px;
-    text-align: center;
-    cursor: pointer;
-    margin-bottom: 20px;
-    color: #2563eb;
-    background: #eff6ff;
-  }
-  
-  .upload-box input {
-    display: none;
-  }
-  
-  .form-group {
-    margin-bottom: 20px;
-  }
-  
-  .form-group label {
-    display: block;
-    margin-bottom: 8px;
-  }
-  
-  .form-group input {
-    width: 100%;
-  }
-  
-  button {
-    width: 100%;
-    border: none;
-    border-radius: 12px;
-    padding: 12px;
-    background: #2563eb;
-    color: white;
-    font-size: 16px;
-    cursor: pointer;
-  }
-  
-  button:hover {
-    background: #1d4ed8;
-  }
-  
-  .status {
-    margin-top: 16px;
-    color: #6b7280;
-    font-size: 14px;
-  }
-  
+
   .image-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 18px;
+    grid-template-columns: 1fr;
   }
-  
-  .image-box {
-    min-height: 320px;
-    border-radius: 12px;
-    border: 1px solid #e5e7eb;
-    background: #f9fafb;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
+
+  .video-summary {
+    grid-template-columns: 1fr;
   }
-  
-  .image-box img {
-    max-width: 100%;
-    max-height: 420px;
-    display: none;
-  }
-  
-  .stat-card {
-    background: #eff6ff;
-    padding: 16px;
-    border-radius: 12px;
-    margin-bottom: 20px;
-  }
-  
-  .stat-card span {
-    display: block;
-    color: #6b7280;
-    margin-bottom: 8px;
-  }
-  
-  .stat-card strong {
-    font-size: 32px;
-    color: #2563eb;
-  }
-  
-  #resultList {
-    padding-left: 18px;
-  }
-  
-  #resultList li {
-    margin-bottom: 8px;
-    font-size: 14px;
-  }
+} 

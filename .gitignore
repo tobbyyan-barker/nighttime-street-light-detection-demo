@@ -22,6 +22,7 @@ env/
 # Uploaded and generated images
 static/uploads/*
 static/results/*
+static/frames/
 
 # Keep folders
 !static/uploads/.gitkeep
