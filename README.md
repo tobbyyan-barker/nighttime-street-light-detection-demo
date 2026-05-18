@@ -4,10 +4,16 @@
 
 本项目是一个基于 YOLO 的夜间道路路灯检测 Demo，主要用于展示目标检测模型在夜间道路场景中的检测效果。
 
-该Demo支持两种输入方式:
+该Demo支持两种输入方式，图片检测和短视频检测:
 
-1. 用户可以通过网页端上传夜间道路图片，后端使用训练好的 YOLO 模型进行目标检测，并将检测结果返回到前端页面。前端会展示原始图片、检测结果图、检测目标数量、类别标签和置信度信息。
-2. 用户可以上传夜间道路短视频，后端使用OpenCV按固定时间间隔抽帧，再逐帧调用YOLO模型进行检测，最终在前端以图片Gallery的形式展示视频实时监测效果
+### 1. 图片检测:
+用户可以通过网页端上传夜间道路图片，后端使用训练好的 YOLO 模型进行目标检测，并将检测结果返回到前端页面。
+前端会展示原始图片、检测结果图、检测目标数量、类别标签和置信度信息。
+
+### 2. 短视频检测:
+用户也可以上传大小不超过20MB的夜间道路短视频。
+后端会先保存用户上传的视频，并读取视频总帧数和FPS(frames per second), 从而计算视频总时长。对视频总时长超过10s的视频，只取前10s进行检测。
+随后，后端使用OpenCV按固定时间间隔抽帧，再逐帧调用YOLO模型进行检测，最终在前端以图片Gallery的形式展示视频抽帧后的检测结果。
 
 目前该 Demo 主要在本地环境运行，已经实现了从图片/视频上传、后端模型推理到前端结果可视化展示的完整流程。
 
@@ -15,7 +21,7 @@
 
 ## Demo
 ### Video Detection Demo
-![Video Detection Demo](assets/yolo-demo-video-preview.gif)
+![Video Detection Demo](assets/yolo-demo-video-formal-preview1.gif)
 
 ## 项目功能
 
@@ -28,14 +34,16 @@
 - 支持通过置信度阈值调整检测结果
 
 ### 视频检测功能
-- 支持上传短视频文件进行检测
-- 后端使用OpenCV读取视频，并按照固定的时间间隔抽帧
-- 默认fps=1抽帧(即每一秒抽一帧(图片)进行检测)
-- 保存每一帧的图片
-- 对抽取出的每一帧调用YOLO模型进行推理
-- 保存每一帧的检测结果图
-- 前端展示抽帧数量(抽取的图片数量),总的检测框数量，每一帧的检测结果Gallery
-- 支持通过置信度阈值调整视频帧的检测结果
+- 支持上传大小不超过20MB的短视频文件进行检测。
+- 后端使用OpenCV读取视频总帧数和FPS，并计算视频总时长。
+- 对于总时长超过10s的视频，只截取前10s进行检测; 对于总时长不超过10s的视频,直接进行抽帧检测。
+- 后端按照固定的时间间隔(FRAME_SAMPLE_INTERVAL_SEC)对视频进行抽帧检测。
+- 默认抽帧频率是1FPS，即每秒抽一帧图片进行检测。
+- 保存抽取出的每一帧原始图片。
+- 对抽取出的每一帧调用YOLO模型进行推理。
+- 保存每一帧的检测结果图。
+- 前端以Gallery的形式展示视频检测结果，包括抽帧数量,总的检测框数量，每一帧的检测结果。
+- 支持通过置信度阈值调整视频帧的检测结果。
 ---
 
 ## 技术栈
@@ -49,56 +57,64 @@
 ---
 
 ## 项目结构
-
 ```text
 yolo_demo/
-├── app.py                    # Flask 后端入口，负责图片/视频接收、模型推理和结果返回
-├── best.pt                   # 训练好的 YOLO 模型权重，本仓库默认不上传
-├── requirements.txt          # Python 依赖列表
+├── app.py # Flask 后端入口，负责图片/视频接收、模型推理和结果返回
+├── best.pt # 训练好的 YOLO 模型权重（默认不上传）
+├── requirements.txt # Python 依赖列表
 ├── templates/
-│   └── index.html            # 前端页面结构
+│ └── index.html # 前端页面结构
 └── static/
-    ├── script.js             # 前端交互逻辑：图片/视频上传、POST 请求和结果渲染
-    ├── style.css             # 页面样式文件
-    ├── uploads/              # 保存用户上传的原始图片
-    │   └── videos/           # 保存用户上传的视频
-    ├── frames/               # 保存视频抽帧后的图片
-    └── results/              # 保存模型生成的检测结果图片
-        └── video_frames/     # 保存视频帧检测后的结果图
+├── script.js # 前端交互逻辑：图片/视频上传、POST 请求和结果渲染
+├── style.css # 页面样式文件
+├── uploads/ # 保存用户上传的原始文件
+│ └── videos/ # 保存用户上传的视频
+├── frames/ # 保存视频抽帧后的图片
+└── results/ # 保存模型生成的检测结果图片
+└── video_frames/ # 保存视频帧检测后的结果图
 ```
-# 夜间道路路灯检测 Demo 项目文档
+---
 
 ## 环境依赖
 
 建议使用 **Python 3.10 或以上版本**。
 
 ### 主要依赖
-text
 flask
 ultralytics
 opencv-python
-### 安装方式
 
+### 安装方式
 #### 方式一：通过 requirements.txt 安装
-```pip install -r requirements.txt```
+
+```bash
+pip install -r requirements.txt
+```
+
 #### 方式二：手动安装
 
-```pip install flask ultralytics opencv-python```
+```bash
+pip install flask ultralytics opencv-python
+```
 ---
 
 ## 运行方式
 
 ### 1. 克隆项目
-```git clone https://github.com/tobbyyan-barker/nighttime-street-light-detection-demo.git```
-```cd nighttime-street-light-detection-demo```
+```bash
+git clone https://github.com/tobbyyan-barker/nighttime-street-light-detection-demo.git
+cd nighttime-street-light-detection-demo
+```
 ### 2. 准备模型权重
 
-> ⚠️ 由于模型权重文件通常较大，`best.pt` 默认不上传到 GitHub。 后续会通过百度网盘上传
+> ⚠️ 由于模型权重文件通常较大，`best.pt` 默认不会上传到 GitHub。  
+> 模型权重可通过网盘等方式单独提供。
 
 请将训练好的 YOLO 权重文件放在项目**根目录**下，并命名为：
+```text
 best.pt
+```
 项目根目录结构示例：
-
 ```text
 yolo_demo/
 ├── app.py
@@ -106,17 +122,15 @@ yolo_demo/
 ├── templates/
 └── static/
 ```
-
 ### 3. 启动 Flask 服务
-
-```python app.py```
+```bash
+python app.py
+```
 启动成功后，在浏览器中打开：
 
 👉 http://127.0.0.1:5000
 
 即可使用本地网页 Demo。
-
----
 
 ## 使用流程
 
@@ -135,52 +149,84 @@ yolo_demo/
 ### 视频检测流程
 
 1. 打开本地网页Demo
-2. 点击"Choose Video" 上传夜间道路图片
-3. 调整置信度阈值
-4. 点击"Start Video Detection"
-5. 后端自动完成视频保存，抽帧和逐帧YOLO检测，返回抽帧数量 视频帧检测到的目标总数，逐帧结果图
-6. 前端展示:
-   -  Extracted Frames：抽帧数量
-   -  Total Detected Objects：视频帧检测到的目标总数
-   -  Video Detection Results：逐帧检测结果图 Gallery
+2. 点击 **Choose Video** 上传夜间道路短视频
+3. 调整 **置信度阈值**
+4. 点击 **Start Video Detection**
+5. 后端自动完成视频保存，抽帧和逐帧YOLO检测，
+6. 后端完成视频处理后，返回 JSON 格式的检测结果，包括：
+   - **视频处理状态信息**
+   - **视频文件路径**
+   - **视频文件大小**
+   - **视频总时长**
+   - **实际处理时长**
+   - **原视频 FPS**
+   - **抽帧间隔**
+   - **抽帧数量**
+   - **视频帧检测到的目标总数**
+   - **每一帧的检测结果列表**
 
----
+7. 前端根据后端返回的数据展示视频检测结果：
+   - **Video Size**：视频文件大小
+   - **Video Duration**：视频总时长
+   - **Processed Duration**：实际参与检测的视频时长
+   - **Extracted Frames**：抽帧数量
+   - **Total Detected Objects**：视频帧检测到的目标总数
+   - **Video Detection Results**：逐帧检测结果图 Gallery
 
 ### 视频检测实现逻辑
 
-视频检测并不是直接将完整视频输入YOLO模型，而是先将视频拆分成若干个关键帧，再对每一帧进行图片检测。
+视频检测并不是直接将完整视频输入YOLO模型，而是先使用OpenCV将视频拆分成若干个关键帧，再对抽出的每一帧作为图片输入YOLO模型进行检测。
 
 后端处理流程如下:
 ```text
 上传视频
-→ Flask通过request.files["video"] 来接受文件
-→ 视频被保存到/static/uploads/videos
-→ OpenCV打开视频文件: cv2.VideoCapture 方法
-→ 获取原始视频fps
-→ 传入我们需要的fps参数 (期望几秒提取一帧) 本项目采用默认方式: fps =1 
-→ 由于Opencv不支持秒数抽帧 要想把秒数转成对应的帧数(隔几帧抽取一张图片，然后再进行抽帧) 
+→ Flask通过request.files["video"] 来接收文件
+→ 检查视频文件大小，限制上传文件不超过 20MB
+→ 将视频保存到/static/uploads/videos
+→ 使用cv2.VideoCapture方法打开视频文件
+→ 获取原始视频FPS和总帧数
+→ 根据原始视频FPS和总帧数计算视频总时长
+→ 如果视频时长超过10秒，只处理前10秒；否则处理完整视频
+→ 设置抽帧时间间隔 FRAME_SAMPLE_INTERVAL_SEC，本项目默认为 1，即每 1 秒抽取 1 帧
+→ 将抽帧频率转换为帧间隔 frame_interval
+→ 按 frame_interval 从视频中抽取帧图片
 → 保存抽帧图片到/static/frames
-→ 对每一帧调用YOLO模型进行推理
-→ 使用result.plot() 生成检测结果图
-→ 将检测结果图保存到/static/results/video_frames
-→ 用JSON格式打包抽帧数量，视频帧检测到的目标总数和检测结果图给前端
-→ 前端渲染检测结果Gallery
+→ 对每一帧调用YOLO模型进行目标检测
+→ 使用自定义绘图函数生成检测结果图，在图中主要展示检测框和置信度信息
+→ 将类别，置信度信息等详细信息整理为结构化结构，交由右侧Result区域展示
+→ 用JSON格式打包抽帧数量，视频帧检测到的目标总数和逐帧检测结果图给前端
+→ 前端根据JSON数据以Gallery的形式渲染统计卡片和检测结果
 ```
+
+其中，抽帧逻辑的核心思想是将“按秒抽帧”转换为“按帧间隔抽帧”。例如，若原视频 FPS 为 30，且设置 `FRAME_SAMPLE_INTERVAL_SEC = 1`，则每隔约 30 帧抽取 1 帧用于检测。
+为了避免图像中类别文字与多个检测框重叠，本项目没有直接使用 YOLO 默认的 `result.plot()` 可视化方式，而是通过**自定义绘图逻辑**在检测图中保留更清晰的检测框和置信度信息，并将类别等详细结果放在右侧 Result 区域展示。
 
 ## 当前状态
 
 ✅ 已完成功能：
 
-- YOLO 模型本地推理  
-- Flask 后端接口搭建  
-- 前端图片上传与预览  
-- 图片检测结果图返回与展示  
-- 检测目标数量和置信度信息展示
+### 图片检测
+
+- YOLO 模型本地推理
+- Flask 后端接口搭建
+- 前端图片上传与预览
+- 图片检测结果图返回与展示
+- 检测目标数量、类别和置信度信息展示
+
+### 视频检测
+
 - 视频上传功能
-- OpenCV视频抽帧功能
-- 视频帧YOLO批量检测
-- 视频检测结果Gallery展示  
-- 本地 Demo 运行验证  
+- 上传文件大小限制
+- OpenCV 视频读取与抽帧
+- 视频帧 YOLO 批量检测
+- 视频检测统计信息返回
+- 视频检测结果 Gallery 展示
+
+### 本地运行
+
+- 本地 Demo 运行验证
+- 已完成从图片/视频上传、后端推理到前端结果展示的完整流程
+
 
 📌 当前 Demo **尚未部署到云服务器**，主要用于本地展示和项目复现。
 
@@ -197,7 +243,9 @@ yolo_demo/
 - 🤖 探索 Agent 辅助误检分析与数据优化建议生成 
 
 ### 关于短视频检测的说明
-考虑到服务器带宽、存储和推理成本，当Demo部署到服务器后, **视频上传大小将被限制**。
+当前版本已支持本地短视频上传与抽帧检测。考虑到云服务器的带宽、存储空间和模型推理成本，后续部署到服务器后，视频上传大小和处理时长可能会进一步限制。
+
+因此，视频检测功能目前主要用于展示“上传视频 → 后端抽帧 → 逐帧检测 → 前端 Gallery 展示”的完整流程，而不是实时视频流检测。
 
 ---
 
