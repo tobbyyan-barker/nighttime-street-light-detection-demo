@@ -46,6 +46,10 @@
           <input type="file" id="videoInput" accept="video/*" />
           <span>Choose Video</span>
         </label>
+        
+        <p class="hint">
+          Max video size: 20MB. For videos longer than 10s, only the first 10s will be processed.
+        </p>
 
         <!-- 置信度滑动条 -->
         <div class="form-group">
@@ -61,6 +65,7 @@
         <button id="detectVideoBtn">Start Video Detection</button>
 
         <p id="statusText" class="status">Waiting for image or video upload...</p>
+        <p id="warningText" class="warning"></p>
       </section>
 
       <!-- 图片检测区域 -->
@@ -103,6 +108,21 @@
 
         <div class="video-summary">
           <div class="stat-card">
+            <span>Video Size</span>
+            <strong id="videoSizeText">-</strong>
+          </div>
+        
+          <div class="stat-card">
+            <span>Video Duration</span>
+            <strong id="videoDurationText">-</strong>
+          </div>
+
+          <div class="stat-card">
+            <span>Processed Duration</span>
+            <strong id="processedDurationText">-</strong>
+          </div>
+          
+          <div class="stat-card">
             <span>Extracted Frames</span>
             <strong id="frameCountText">0</strong>
           </div>
@@ -112,7 +132,6 @@
             <strong id="videoCountText">0</strong>
           </div>
         </div>
-
         <div id="videoGallery" class="video-gallery"></div>
       </section>
     </main>

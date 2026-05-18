@@ -12,8 +12,80 @@ RESULT_FOLDER = "static/results"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(RESULT_FOLDER, exist_ok=True)
 
+# 定义常量 目的: 限制用户上传的视频大小和时长(考虑到服务器带宽和计算资源的限制) 视频长度小于10s 视频大小小于20MB 
+# 本demo: 大小超限 --- 直接拒绝 时长超限 --- 只处理前10s 并返回warning提示
+MAX_VIDEO_SIZE_MB = 20
+MAX_DURATION_SEC = 10
+
 # 加载 YOLO 模型
 model = YOLO("best.pt")
+
+#自定义画框函数 自定义绘制检测框
+def draw_boxes_conf_only(image_path, result, save_path):
+    """
+    自定义绘制检测框：
+    - 只在框上显示置信度，比如 0.68
+    - 不显示 class name，比如 street light
+    """
+    image = cv2.imread(image_path)
+
+    if image is None:
+        raise ValueError(f"Failed to read image: {image_path}")
+
+    for box in result.boxes:
+        # 取检测框坐标
+        x1, y1, x2, y2 = box.xyxy[0].cpu().numpy()
+        x1, y1, x2, y2 = map(int, [x1, y1, x2, y2])
+
+        # 取置信度，只显示置信度
+        confidence = float(box.conf[0])
+        label = f"{confidence:.2f}"
+
+        # 蓝色框：OpenCV 使用 BGR，所以 (255, 0, 0) 是蓝色
+        box_color = (255, 0, 0)
+        text_color = (255, 255, 255)
+
+        # 框线粗细
+        cv2.rectangle(image, (x1, y1), (x2, y2), box_color, 2)
+
+        # 标签样式
+        font = cv2.FONT_HERSHEY_SIMPLEX
+        font_scale = 0.5
+        thickness = 1
+
+        text_size, _ = cv2.getTextSize(label, font, font_scale, thickness)
+        text_w, text_h = text_size
+
+        # 标签位置：默认放在框的左上角上方
+        text_x = x1
+        text_y = y1 - 6
+
+        # 如果文字会超出图片顶部，就放到框内部
+        if text_y - text_h - 4 < 0:
+            text_y = y1 + text_h + 6
+
+        # 画蓝色文字背景
+        cv2.rectangle(
+            image,
+            (text_x, text_y - text_h - 4),
+            (text_x + text_w + 6, text_y + 3),
+            box_color,
+            -1
+        )
+
+        # 写置信度
+        cv2.putText(
+            image,
+            label,
+            (text_x + 3, text_y - 2),
+            font,
+            font_scale,
+            text_color,
+            thickness,
+            cv2.LINE_AA
+        )
+
+    cv2.imwrite(save_path, image)
 
 # 首页接口: 打开网页 
 @app.route("/") # app.route("/") 表示网页根路径
@@ -62,15 +134,12 @@ def predict():
     #model.predict() --- 返回列表
     result = results[0] #单张图片的检测结果 
 
-    # 生成画框后的图片
-    plotted_img = result.plot()
-
     #生成结果图路经
     result_name = f"result_{image_name}"
     result_path = os.path.join(RESULT_FOLDER, result_name)
 
-    # 保存结果图 (图片数组---图片文件)
-    cv2.imwrite(result_path, plotted_img)
+    # 自定义画框：只显示置信度，不显示 street light
+    draw_boxes_conf_only(image_path, result, result_path)
 
     # 提取检测信息
     detections = []
@@ -112,6 +181,20 @@ def predict_video():
     video_path= os.path.join(upload_dir,video.filename)
     video.save(video_path)
 
+    #读取视频文件的大小: os.path.getsize(返回单位是 bytes)
+    video_size_bytes = os.path.getsize(video_path) #返回的只是bytes
+    #1KB = 1024bytes,  1MB = 1024KB  1MB = 1024*1024 bytes 
+    video_size_mb = video_size_bytes / (1024 * 1024)
+    #判断
+    if video_size_mb > MAX_VIDEO_SIZE_MB:
+        os.remove(video_path)
+        return jsonify({
+            "error": (
+                f"The uploaded video is {video_size_mb:.1f}MB. " 
+                f"Please upload a video smaller than {MAX_VIDEO_SIZE_MB}MB."
+            )
+        }),400
+
     #创建抽帧保存文件夹 可以给YOLO模型读取
     frame_dir = "static/frames"
     os.makedirs(frame_dir,exist_ok=True)
@@ -124,17 +207,33 @@ def predict_video():
         return jsonify({"error": "can't open this video"}),400
 
     #获得原始视频的特性: 比如30FPS表示 每1s 30帧 因为cv2只认帧数 不会认秒数 为了把秒数转换成帧数
-    original_frame = capture.get(cv2.CAP_PROP_FPS) 
-
+    original_frame_per_second = capture.get(cv2.CAP_PROP_FPS) 
+    total_frames = capture.get(cv2.CAP_PROP_FRAME_COUNT)
+    
     # 防止 FPS 读取失败
-    if original_frame <= 0:
-        original_frame = 30
+    if original_frame_per_second <= 0:
+        original_frame_per_second = 30
 
+    #计算原始视频时长: 原始视频时长=视频总帧数(frame) / 视频FPS(frame_per_second)
+    duration_sec = total_frames / original_frame_per_second
+
+    #错误信息提示 --- 针对时长大的视频
+    warning_message = None
+    #如果原始视频时长大于10s 只截取前10s 并返回warning
+    if duration_sec > MAX_DURATION_SEC:
+        max_frames = int(original_frame_per_second * MAX_DURATION_SEC)
+        warning_message = (
+            f"The uploaded video is {duration_sec:.1f}s long. "
+            f"To reduce server inference cost, only the first {MAX_DURATION_SEC}s are processed."
+        )
+    else:
+        max_frames = int(total_frames)
+    
     #这个人为更改 每几秒抽帧一帧 换成帧--- 每60帧里面抽一帧  
-    fps_interval = 1 # 每一秒抽一帧
+    FRAME_SAMPLE_INTERVAL_SEC = 1 # 每一秒抽一帧
 
     #这个是计算每多少帧里面抽一帧 --- 把秒---帧
-    frame_interval = max(1, int(original_frame * fps_interval))
+    frame_interval = max(1, int(original_frame_per_second * FRAME_SAMPLE_INTERVAL_SEC))
 
     #然后循环从视频里抽取帧 (cv2只能一帧一帧按顺序抽取)
     frame_id = 0  #便于标记原始视频对应的帧
@@ -143,7 +242,7 @@ def predict_video():
 
     #无限循环 这个次数不好判断 用while
     #循环作用: 逐帧读取视频
-    while True:
+    while frame_id < max_frames:
         # 这句的话 就是从视频里一帧一帧的读 返回是否读到帧(ret变量) 以及当前对应的frame
        ret, frame = capture.read()
        #当ret不是1 即ret 不是true的时候 说明循环停止
@@ -188,15 +287,13 @@ def predict_video():
         results = model.predict(source=frame_path,conf=conf,save=False)
         #提取结果图
         result = results[0]
-        # 生成画框后的图片 result.plot() 会返回画框后的图片
-        plotted_img = result.plot()
         #生成result_name, 后面生成result_path时要用
         #os.path.basename表示的时提取frame_path最后一部分文件名
         result_name = os.path.basename(frame_path)
         result_path = os.path.join(result_dir,result_name)
 
-        # 保存检测后的图片
-        cv2.imwrite(result_path,plotted_img)
+        #自定义画框: 只显示置信度 不显示字段street light
+        draw_boxes_conf_only(frame_path, result, result_path)
 
         # 提取每张抽帧图片的检测信息
         detections = []
@@ -223,8 +320,12 @@ def predict_video():
     #返回所有帧的结果
     return jsonify({
         "message": "video processed successfully",
+        "warning": warning_message,
         "video_path": "/" + video_path,
-        "fps": original_frame,
+        "video_size_mb": round(video_size_mb,2),
+        "video_duration_sec": round(duration_sec,2),
+        "processed_duration_sec": min(round(duration_sec, 2), MAX_DURATION_SEC),
+        "fps": original_frame_per_second,
         "frame_interval": frame_interval,
         "frame_count": len(saved_list),
         #预测框的数量
