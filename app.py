@@ -335,4 +335,7 @@ def predict_video():
 
 #启动flask服务 debug=true --- 调试模式 debug=false (开发模式)
 if __name__ == "__main__":
-    app.run(debug=True)
+    #本地调试代码
+    # app.run(debug=True)
+    # 上服务器 --- 主机+端口 
+    app.run(host="0.0.0.0", port=5000)
