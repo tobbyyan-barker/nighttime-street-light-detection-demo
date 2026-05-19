@@ -82,7 +82,7 @@ yolo_demo/
 ### 主要依赖
 flask
 ultralytics
-opencv-python
+opencv-python-headless
 
 ### 安装方式
 #### 方式一：通过 requirements.txt 安装
@@ -94,7 +94,7 @@ pip install -r requirements.txt
 #### 方式二：手动安装
 
 ```bash
-pip install flask ultralytics opencv-python
+pip install flask ultralytics opencv-python-headless
 ```
 ---
 
@@ -122,15 +122,50 @@ yolo_demo/
 ├── templates/
 └── static/
 ```
-### 3. 启动 Flask 服务
+### 3. 启动本地Flask 服务
+
+在本地开发或调试时，可以直接运行:
+
 ```bash
 python app.py
 ```
-启动成功后，在浏览器中打开：
+启动成功后，用户可在浏览器中打开：
 
 👉 http://127.0.0.1:5000
 
 即可使用本地网页 Demo。
+
+### 4. 服务器部署运行
+在云服务器上，本项目使用Gunicorn 作为WSGI服务，并通过systemd后台管理Gunicorn的运行状态:
+
+```bash
+systemctl start yolo_demo
+systemctl status yolo_demo
+```
+
+注: 此命令中,yolo_demo表示systemd的服务名。
+注: yolo_demo 不是一个额外的软件，而是本项目部署过程自定义的名称。在systemd中，yolo_demo.service 用来后台管理 Gunicorn 服务；
+    在 Nginx 中，sites-available/yolo_demo 是站点反向代理配置文件。二者名称相同只是为了便于识别和管理，实际运行的是 Flask + YOLO 推理服务。
+
+如果服务正常运行，状态中会显示:
+```text
+Active: active (running)
+```
+
+本项目服务器部署链路如下:
+```text
+用户通过浏览器访问网站: (http://公网IP）
+            ↓
+用户请求转发到Nginx的80端口
+            ↓
+Nginx作为反向代理，将请求转发到http://127.0.0.1:5000
+            ↓
+Gunicorn 在本机http://127.0.0.1:5000上加载python app.py项目里的名为app的Flask对象
+            ↓
+Flask后端接收图片上传请求, 并调用YOLO模型进行目标检测
+            ↓
+检测结果通过后端接口返回给前端页面进行展示
+```
 
 ## 使用流程
 
@@ -228,15 +263,21 @@ python app.py
 - 已完成从图片/视频上传、后端推理到前端结果展示的完整流程
 
 
-📌 当前 Demo **尚未部署到云服务器**，主要用于本地展示和项目复现。
-
+📌 当前 Demo **已完成云服务器的部署**，可通过公网IP进行在线访问。
+部署环境采用 Alibaba Cloud ECS + Ubuntu 22.04，后端使用 Flask 提供推理接口，Gunicorn作为WSGI服务，加载app.py文件
+里名为app的Flask对象，systemd负责后台管理Gunicorn,Nginx作为反向代理对外提供web访问。
 ---
 
-## 后续计划
+- ☁️ 已部署至阿里云 ECS 云服务器，支持公网访问  
+- 🚀 使用 Gunicorn 运行 Flask 后端服务  
+- 🔁 使用 systemd 管理后端进程，支持后台运行与服务重启  
+- 🌐 使用 Nginx 进行反向代理，将公网 80 端口请求转发至本机 Flask 服务  
+- 🧠 支持上传夜间道路图片，并返回 YOLO 路灯检测结果 
 
-- ☁️ 将 Demo 部署到云服务器，开放在线访问链接  
-- 🛡️ 增加上传文件大小限制，提升系统稳定性  
-- 🎨 优化前端页面交互体验
+
+## 后续计划
+  
+- 🎨 优化前端页面交互体验和检测结果展示方式
 - 🎥 将视频帧检测结果进一步合成为检测后视频  
 - 🌃 补充远距离小目标、遮挡路灯和复杂光源场景样本 
 - 🔍 增加误检/漏检案例自动整理功能
@@ -263,10 +304,14 @@ python app.py
 本项目不仅关注模型训练，还涵盖：
 
 - 数据整理与标注  
-- 模型训练与评估  
+- YOLO模型训练与评估  
 - Precision、Recall、mAP 等指标分析  
 - 复杂背景下的误检和漏检分析  
-- 前后端交互与模型推理展示  
+- Flask后短推理和前端页面交互
+- 图片上传,模型推理，检测结果可视化显示
+- 视频抽帧结果与结果Gallery显示
+- 云服务器部署与公网访问配置
+- Gunicorn，systemd和Nginx 组成的基础部署链路实践  
 
 ### 项目收获
 
@@ -275,3 +320,5 @@ python app.py
 本项目不仅完成了 YOLO 模型训练与图片检测 Demo，还进一步扩展到了视频检测场景。通过视频上传、OpenCV 抽帧、YOLO 逐帧推理和前端 Gallery 展示，初步构建了一个面向夜间道路场景的目标检测工程闭环。
 
 在视频测试过程中也发现，模型对近距离和中距离清晰路灯具有较稳定的检测能力，但对远距离小目标、遮挡目标和复杂光源干扰场景仍有提升空间。这为后续数据集补充、漏检和误检分析提供了明确方向。
+
+在部署方面，本项目已部署至云服务器，并使用Gunicorn加载app.py文件里名为app的Flask对象，从而运行Flask后端服务, systemd进行后台Gunicorn管理, Nginx作为反向代理把用户的请求转发到本地5000端口(http://127.0.0.1:5000)。通过这一过程，我初步理解了 AI 模型从本地推理Demo到公网在线服务的部署流程，也认识到工程化部署中端口管理、虚拟环境、服务管理和反向代理的重要性。
